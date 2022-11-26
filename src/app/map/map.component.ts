@@ -9,9 +9,11 @@ import { Style, Circle, Stroke, Fill, Text } from 'ol/style';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import { fromLonLat } from 'ol/proj';
-import { Point as PointType } from '../parking.service';
+import { ParkingService, Point as PointType } from '../parking.service';
 import VectorSource from 'ol/source/Vector';
 import * as ol from 'ol';
+import { MapPointsService } from '../map-points.service';
+import { CycleService } from '../cycle.service';
 
 @Component({
   selector: 'app-map',
@@ -23,48 +25,96 @@ export class MapComponent implements OnInit, OnChanges {
 
   map?: Map;
 
-  markers: VectorLayer<Vector> = new VectorLayer({
-    source: new VectorSource,
-    style: (feature) => {
-      return [
-        new Style({
-          image: new Circle({
-            radius: 10,
-            stroke: new Stroke({ color: '#fff' }),
-            fill: new Fill({ color: '#3399CC' }),
-          }),
-          stroke: new Stroke({
-            color: [0, 0, 0, 1.0],
-            width: 1,
-            lineDash: [1, 5, 3, 5]
-          }),
-          text: new Text({
-            font: '12px Calibri',
-            text: feature.get('available'),
-            placement: 'line',
-            fill: new Fill({
-              color: '#000'
+  types: any = {
+    parking: false,
+    cycle: false
+  }
+
+  markers: any = {
+    parkingLayer: new VectorLayer({
+      source: new VectorSource,
+      style: (feature) => {
+        return [
+          new Style({
+            image: new Circle({
+              radius: 10,
+              stroke: new Stroke({ color: '#fff' }),
+              fill: new Fill({ color: '#3399CC' }),
             }),
             stroke: new Stroke({
-              color: '#fff',
-              width: 3
-            })
-          }),
-        })
-      ];
-    }
-  });
+              color: [0, 0, 0, 1.0],
+              width: 1,
+              lineDash: [1, 5, 3, 5]
+            }),
+            text: new Text({
+              font: '12px Calibri',
+              text: feature.get('available'),
+              placement: 'line',
+              fill: new Fill({
+                color: '#000'
+              }),
+              stroke: new Stroke({
+                color: '#fff',
+                width: 3
+              })
+            }),
+          })
+        ];
+      }
+    }),
+    cyclesLayer: new VectorLayer({
+      source: new VectorSource,
+      style: (feature) => {
+        return [
+          new Style({
+            image: new Circle({
+              radius: 10,
+              stroke: new Stroke({ color: '#fff' }),
+              fill: new Fill({ color: '#c8c450' }),
+            }),
+            stroke: new Stroke({
+              color: [0, 0, 0, 1.0],
+              width: 1,
+              lineDash: [1, 5, 3, 5]
+            }),
+            text: new Text({
+              font: '12px Calibri',
+              text: feature.get('available'),
+              placement: 'line',
+              fill: new Fill({
+                color: '#000'
+              }),
+              stroke: new Stroke({
+                color: '#fff',
+                width: 3
+              })
+            }),
+          })
+        ];
+      }
+    }),
+  };
 
-  @Input() points: PointType[] = [];
-
-  ngOnInit(): void {
-    this.initMap()
+  constructor(private mapPointsService: MapPointsService, private parkingService: ParkingService, private cycleService: CycleService) {
+    this.mapPointsService.typesChange.subscribe(value => {
+      this.types = value
+      this.reloadMarkers()
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.markers.getSource()?.clear();
+    throw new Error('Method not implemented.');
+  }
+
+  ngOnInit(): void {
+    this.initMap()
+    this.types = this.mapPointsService.types;
+  }
+
+  reloadMarkers(): void {
+    this.markers.parkingLayer.getSource()?.clear();
+    this.markers.cyclesLayer.getSource()?.clear();
     this.loadSites();
-    console.log(this.markers.getSource()?.getFeatures())
   }
 
   initMap(): void {
@@ -81,21 +131,37 @@ export class MapComponent implements OnInit, OnChanges {
       ],
       target: 'ol-map'
     });
-    this.map.addLayer(this.markers);
-
-    var marker = new Feature(new Point(fromLonLat([2.2931, 48.8584])));
-    this.markers.getSource()?.addFeature(marker);
+    this.map.addLayer(this.markers.parkingLayer);
+    this.map.addLayer(this.markers.cyclesLayer);
   }
 
   loadSites(): void {
-    console.log(this.points)
-    this.points.map((p) => {
-      let feat = new Feature({
-        geometry: new Point(fromLonLat([p.lng, p.lat])),
-        name: p.name,
-        available: p.available
-      });
-      this.markers.getSource()?.addFeature(feat);
-    })
+    let points: any = [];
+    console.log(points)
+    if (this.types.parking) {
+      this.parkingService.getParkings().subscribe(points => {
+        points.map((p: any) => {
+          let feat = new Feature({
+            geometry: new Point(fromLonLat([p.lng, p.lat])),
+            name: p.name,
+            available: p.available
+          });
+          this.markers.parkingLayer.getSource()?.addFeature(feat);
+        })
+      })
+    }
+
+    if (this.types.cycle) {
+      this.cycleService.getParkings().subscribe(points => {
+        points.map((p: any) => {
+          let feat = new Feature({
+            geometry: new Point(fromLonLat([p.lng, p.lat])),
+            name: p.name,
+            available: p.available
+          });
+          this.markers.cyclesLayer.getSource()?.addFeature(feat);
+        })
+      })
+    }
   }
 }

@@ -10,7 +10,7 @@ import { ParkingService, Point } from '../parking.service'
 export class MapContainerComponent implements OnInit {
   points: Point[] = [];
 
-  constructor(private mapPointService: MapPointsService, private parkingService: ParkingService) { }
+  constructor(public mapPointService: MapPointsService, private parkingService: ParkingService) { }
 
   ngOnInit(): void {
     this.getParkingPoints()

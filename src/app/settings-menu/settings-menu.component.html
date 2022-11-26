@@ -1,1 +1,24 @@
-<p>settings-menu works!</p>
+<div class="flex flex-col">
+  <div class="w-full bg-blue-400 p-4 text-center">La Rochelle OpenData Map</div>
+  <div class="flex space-x-4 p-4">
+    <input
+      type="checkbox"
+      name="parking"
+      id="parking"
+      [(ngModel)]="settings.parking"
+      (ngModelChange)="updateSettings()"
+    />
+    <label for="parking">Places libres</label>
+  </div>
+  <div class="flex space-x-4 p-4">
+    <input
+      type="checkbox"
+      name="cycle"
+      id="cycle"
+      [(ngModel)]="settings.cycle"
+      (ngModelChange)="updateSettings()"
+    />
+    <label for="cycle">Vélos libres</label>
+  </div>
+  <span>{{ mapPointService.types | json }}</span>
+</div>
