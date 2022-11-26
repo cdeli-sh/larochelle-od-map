@@ -1,5 +1,5 @@
 [build]
-  publish = "dist/"
+  publish = "dist/larochelle-od-map"
   command = "ng build"
 [[redirects]]
   from = "/*"
