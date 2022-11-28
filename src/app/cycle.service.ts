@@ -7,7 +7,7 @@ import { Observable, map } from 'rxjs';
 })
 export class CycleService {
 
-  private apiUrl = "https://api.agglo-larochelle.fr/production/opendata/api/records/1.0/search/dataset=yelo___disponibilite_des_velos_en_libre_service&facet=station_nom&facet=velos_disponibles&facet=accroches_libres&facet=nombre_emplacements&facet=station_latitude&facet=station_longitude"
+  private apiUrl = "https://services-api.molecul.fr/api/lr-cycles"
 
   constructor(
     private http: HttpClient

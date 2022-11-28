@@ -8,7 +8,7 @@ import { Observable, of, map, } from 'rxjs';
 
 export class ParkingService {
 
-  private apiUrl = 'https://api.agglo-larochelle.fr/production/opendata/api/records/1.0/search/dataset=parking___places_disponibles_en_temps_reel&sort=-xlong&facet=id&facet=xlong&facet=ylat&facet=nom&facet=nb_places_disponibles';
+  private apiUrl = 'https://services-api.molecul.fr/api/lr-parkings';
 
   constructor(
     private http: HttpClient
